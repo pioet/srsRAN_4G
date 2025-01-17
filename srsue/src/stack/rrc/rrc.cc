@@ -340,7 +340,9 @@ bool rrc::connection_request(srsran::establishment_cause_t cause, srsran::unique
 
 void rrc::set_ue_identity(srsran::s_tmsi_t s_tmsi)
 {
-  ue_identity_configured = true;
+  // oyl- edit mission1
+  // ue_identity_configured = true;
+  ue_identity_configured = false;
   ue_identity            = s_tmsi;
   logger.info(
       "Set ue-Identity to 0x%" PRIu64 ":0x%" PRIu64 "", (uint64_t)ue_identity.mmec, (uint64_t)ue_identity.m_tmsi);
@@ -878,15 +880,18 @@ void rrc::send_con_request(srsran::establishment_cause_t cause)
     srsran::to_asn1(&rrc_conn_req->ue_id.s_tmsi(), ue_identity);
   } else {
     rrc_conn_req->ue_id.set_random_value();
+    // oyl- edit mission1
+    uint64_t random_id = (uint64_t)0x1;
+
     // TODO use proper RNG
-    uint64_t random_id = 0;
-    for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
-      random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
-    }
+    // uint64_t random_id = 0;
+    // for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
+    //   random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
+    // }
     rrc_conn_req->ue_id.random_value().from_number(random_id);
   }
   rrc_conn_req->establishment_cause = (establishment_cause_opts::options)cause;
-
+  // oyl- comment: you need to parse random_id later in enb side. 
   send_ul_ccch_msg(ul_ccch_msg);
 }
 

@@ -192,7 +192,10 @@ private:
   bool     has_tmsi = false;
   uint32_t m_tmsi   = 0;
   uint8_t  mmec     = 0;
-
+  
+  // oyl- add randomValue. parse and save. 
+  uint64_t random_val = 0; 
+  
   // state
   uint32_t                                     rlf_cnt              = 0;
   uint8_t                                      transaction_id       = 0;

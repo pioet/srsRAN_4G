@@ -445,6 +445,7 @@ std::string rrc::ue::to_string(const activity_timeout_type_t& type)
  */
 void rrc::ue::handle_rrc_con_req(rrc_conn_request_s* msg)
 {
+  // oyl- comment todo 
   // Log event.
   asn1::json_writer json_writer;
   msg->to_json(json_writer);
@@ -469,6 +470,9 @@ void rrc::ue::handle_rrc_con_req(rrc_conn_request_s* msg)
   }
 
   rrc_conn_request_r8_ies_s* msg_r8 = &msg->crit_exts.rrc_conn_request_r8();
+  
+  // oyl-; parse the rrc_conn_request_r8
+  random_val = (uint32_t)msg_r8->ue_id.random_value().to_number();
 
   if (msg_r8->ue_id.type() == init_ue_id_c::types::s_tmsi) {
     mmec     = (uint8_t)msg_r8->ue_id.s_tmsi().mmec.to_number();
@@ -503,6 +507,12 @@ void rrc::ue::send_connection_setup()
   rrc_conn_setup_r8_ies_s& setup_r8 = rrc_setup.crit_exts.set_c1().set_rrc_conn_setup_r8();
   rr_cfg_ded_s&            rr_cfg   = setup_r8.rr_cfg_ded;
 
+  // oyl- mission2 edit the setup msg
+  setup_r8.non_crit_ext_present = true;
+  // oyl- mission3 calculate 
+  // setup_r8.sat_sig = random_val + (uint64_t)0xF;
+  setup_r8.sat_sig = random_val * 2 + 3;
+
   // Fill RR config dedicated
   if (fill_rr_cfg_ded_setup(rr_cfg, parent->cfg, ue_cell_list)) {
     parent->logger.error("Generating ConnectionSetup. Aborting");
@@ -525,6 +535,8 @@ void rrc::ue::send_connection_setup()
 
   // Log event.
   asn1::json_writer json_writer;
+
+  // oyl- comment: print log top func 
   dl_ccch_msg.to_json(json_writer);
   event_logger::get().log_rrc_event(ue_cell_list.get_ue_cc_idx(UE_PCELL_CC_IDX)->cell_common->enb_cc_idx,
                                     octet_str,

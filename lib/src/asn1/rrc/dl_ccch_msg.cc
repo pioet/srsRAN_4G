@@ -25,6 +25,16 @@
 using namespace asn1;
 using namespace asn1::rrc;
 
+// oyl- add 
+#include <iostream>
+#include <string>
+#include <bitset>
+// uint64 转换成二进制的字符串
+std::string uint64ToBinaryString(uint64_t num) {
+    std::bitset<64> binary(num);
+    return binary.to_string();
+}
+
 /*******************************************************************************
  *                                Struct Methods
  ******************************************************************************/
@@ -1268,6 +1278,8 @@ SRSASN_CODE rrc_conn_setup_r8_ies_s::pack(bit_ref& bref) const
   HANDLE_CODE(rr_cfg_ded.pack(bref));
   if (non_crit_ext_present) {
     HANDLE_CODE(non_crit_ext.pack(bref));
+    // oyl- edit; Important! If you do not edit pack, unpack, and etc. function, the member you added like sat_sig will can not be set new value. 
+    HANDLE_CODE(bref.pack(sat_sig, 32));
   }
 
   return SRSASN_SUCCESS;
@@ -1279,6 +1291,8 @@ SRSASN_CODE rrc_conn_setup_r8_ies_s::unpack(cbit_ref& bref)
   HANDLE_CODE(rr_cfg_ded.unpack(bref));
   if (non_crit_ext_present) {
     HANDLE_CODE(non_crit_ext.unpack(bref));
+    // oyl- add
+    HANDLE_CODE(bref.unpack(sat_sig, 32));
   }
 
   return SRSASN_SUCCESS;
@@ -1290,7 +1304,13 @@ void rrc_conn_setup_r8_ies_s::to_json(json_writer& j) const
   rr_cfg_ded.to_json(j);
   if (non_crit_ext_present) {
     j.write_fieldname("nonCriticalExtension");
-    non_crit_ext.to_json(j);
+    // oyl- add
+    j.start_obj();
+    j.write_str("SatelliteSignature", uint64ToBinaryString(sat_sig));
+    j.end_obj();
+
+    // oyl- remove 
+    // non_crit_ext.to_json(j);
   }
   j.end_obj();
 }

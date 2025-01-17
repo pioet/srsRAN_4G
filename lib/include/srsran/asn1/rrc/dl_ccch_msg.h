@@ -507,6 +507,9 @@ struct rrc_conn_setup_r8_ies_s {
   rr_cfg_ded_s              rr_cfg_ded;
   rrc_conn_setup_v8a0_ies_s non_crit_ext;
 
+  // oyl- add 
+  uint32_t sat_sig;
+
   // sequence methods
   SRSASN_CODE pack(bit_ref& bref) const;
   SRSASN_CODE unpack(cbit_ref& bref);
